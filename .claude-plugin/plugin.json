@@ -1,0 +1,27 @@
+{
+  "name": "flowyouri",
+  "description": "You're doing UI wrong. Start with the flow: work archetypes, layout shells, interaction budgeting, disposable wireframing, and structural design review before writing code.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ivar Limpens Richaards",
+    "url": "https://sixtyoneeighty.dev",
+    "github": "https://github.com/lampekapje"
+  },
+  "homepage": "https://sixtyoneeighty.dev",
+  "repository": "https://github.com/lampekapje/workflow-to-ui",
+  "license": "MIT",
+  "keywords": [
+    "ux",
+    "ui",
+    "frontend",
+    "interaction-budget",
+    "layout",
+    "wireframe",
+    "design-review",
+    "app-flow",
+    "work-archetypes",
+    "claude-code",
+    "antigravity",
+    "codex"
+  ]
+}

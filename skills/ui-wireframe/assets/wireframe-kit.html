@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wireframe — [Product]</title>
+<style>
+  :root{
+    --w-0:#fff; --w-1:#f7f7f7; --w-2:#ededed; --w-3:#dcdcdc;
+    --w-4:#b4b4b4; --w-5:#8c8c8c; --w-6:#5c5c5c; --w-7:#2e2e2e; --w-8:#121212;
+    --danger:#9b6b6b;
+    --sp:8px; --radius:3px;
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    box-sizing:border-box;
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  body{margin:0;background:var(--w-1);color:var(--w-6);font:14px/1.45 var(--font)}
+  h1,h2,h3{color:var(--w-7);margin:0;font-weight:600}
+
+  /* ─── review chrome: deliberately not part of the design ─── */
+  .review-bar{position:sticky;top:0;z-index:50;display:flex;gap:16px;align-items:center;
+    flex-wrap:wrap;padding:8px 12px;background:var(--w-2);border-bottom:2px dashed var(--w-4);
+    font:12px/1 var(--mono);color:var(--w-5)}
+  .review-bar select,.review-bar label{font:12px/1 var(--mono)}
+  .review-bar select{padding:4px 6px;border:1px solid var(--w-4);background:var(--w-0);border-radius:2px}
+
+  /* ─── frame ─── */
+  .frame{max-width:1180px;margin:20px auto;background:var(--w-0);border:1px solid var(--w-3);
+    border-radius:var(--radius);overflow:hidden}
+  .frame.mobile{max-width:390px}
+  .screen[hidden]{display:none}
+
+  /* ─── shells ─── */
+  .app{display:grid;grid-template-columns:180px 1fr;min-height:560px}
+  .app.no-nav{grid-template-columns:1fr}
+  .nav{background:var(--w-1);border-right:1px solid var(--w-3);padding:12px 0}
+  .nav a{display:block;padding:7px 14px;color:var(--w-6);text-decoration:none;border-left:2px solid transparent}
+  .nav a.current{background:var(--w-2);border-left-color:var(--w-7);color:var(--w-8);font-weight:600}
+
+  .split{display:grid;grid-template-columns:32% 1fr;min-height:560px}
+  .pane{overflow:auto;max-height:620px}
+  .pane + .pane{border-left:1px solid var(--w-3)}
+
+  .dash{display:grid;gap:12px;padding:16px;grid-template-columns:repeat(3,1fr)}
+  .dash .hero{grid-column:1/-1}
+  .board{display:grid;gap:10px;padding:14px;grid-template-columns:repeat(4,1fr);align-items:start}
+  .form{max-width:440px;margin:0 auto;padding:24px}
+
+  /* ─── parts ─── */
+  .bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--w-3);background:var(--w-0)}
+  .bar .spacer{flex:1}
+  .row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;
+    padding:7px 14px;border-bottom:1px solid var(--w-2);cursor:pointer}
+  .row:nth-child(even){background:var(--w-1)}
+  .row.sel{background:var(--w-2);box-shadow:inset 3px 0 0 var(--w-7)}
+  .row .t{color:var(--w-7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .meta{color:var(--w-5);font-size:12px}
+  .tile{border:1px solid var(--w-3);border-radius:var(--radius);padding:14px}
+  .tile .n{font-size:30px;color:var(--w-8);font-weight:600;line-height:1.1}
+  .tile.hero .n{font-size:48px}
+  .card{border:1px solid var(--w-3);border-radius:var(--radius);padding:10px;background:var(--w-0);margin-bottom:8px}
+
+  .btn{border:1px solid var(--w-4);background:var(--w-0);color:var(--w-6);
+    padding:6px 12px;border-radius:var(--radius);font:inherit;cursor:pointer}
+  .btn.primary{background:var(--w-7);border-color:var(--w-7);color:var(--w-0);font-weight:600}
+  .btn.text{border-color:transparent;background:none}
+  .btn.danger{color:var(--danger);border-color:transparent;background:none}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .btn:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--w-8);outline-offset:2px}
+  kbd{font:11px var(--mono);border:1px solid var(--w-4);border-bottom-width:2px;
+    border-radius:3px;padding:1px 5px;color:var(--w-6);background:var(--w-1)}
+
+  .field{margin-bottom:16px}
+  .field label{display:block;color:var(--w-7);margin-bottom:4px;font-size:13px}
+  .field input,.field select{width:100%;padding:8px;border:1px solid var(--w-4);
+    border-radius:var(--radius);font:inherit;background:var(--w-0)}
+  .hint{color:var(--w-5);font-size:12px;margin-top:4px}
+
+  .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--w-4);
+    border-radius:12px;padding:2px 9px;font-size:12px;color:var(--w-6)}
+
+  /* placeholders */
+  .img{background:var(--w-2);color:var(--w-5);display:grid;place-items:center;font:11px var(--mono);
+    background-image:linear-gradient(45deg,transparent 48%,var(--w-3) 49%,var(--w-3) 51%,transparent 52%),
+      linear-gradient(-45deg,transparent 48%,var(--w-3) 49%,var(--w-3) 51%,transparent 52%)}
+  .avatar{width:28px;height:28px;border-radius:50%;background:var(--w-2);color:var(--w-5);
+    display:grid;place-items:center;font-size:11px}
+  .chart{display:flex;align-items:flex-end;gap:6px;height:90px}
+  .chart i{flex:1;background:var(--w-3)}
+  .skel{background:var(--w-2);border-radius:2px;height:12px;animation:p 1.2s ease-in-out infinite}
+  @keyframes p{50%{opacity:.5}}
+
+  .empty{padding:56px 24px;text-align:center;color:var(--w-5)}
+  .empty h3{color:var(--w-7);margin-bottom:6px}
+  .error{margin:16px;padding:12px;border:1px solid var(--danger);border-radius:var(--radius);color:var(--danger)}
+
+  /* annotations */
+  .anno{counter-reset:a;max-width:1180px;margin:0 auto 40px;padding:14px 18px;
+    border-left:3px solid var(--w-4);background:var(--w-0);font-size:13px}
+  .anno h4{margin:0 0 8px;font:600 12px/1 var(--mono);color:var(--w-5);text-transform:none}
+  .anno li{margin-bottom:5px;color:var(--w-6)}
+  .mark{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;
+    background:var(--w-7);color:var(--w-0);font:10px var(--mono);vertical-align:middle}
+
+  @media (max-width:760px){
+    .app,.split{grid-template-columns:1fr}
+    .dash,.board{grid-template-columns:1fr}
+    .nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--w-3)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ REVIEW CONTROLS — not part of the product ══ -->
+<div class="review-bar">
+  <strong>wireframe</strong>
+  <label>screen
+    <select id="screenSel">
+      <option value="s-triage">triage queue</option>
+      <option value="s-dash">dashboard</option>
+      <option value="s-form">capture form</option>
+    </select>
+  </label>
+  <label>state
+    <select id="stateSel">
+      <option>loaded</option><option>empty</option><option>first-run</option>
+      <option>loading</option><option>error</option><option>overloaded</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="mobileTog"> mobile</label>
+  <span class="spacer"></span>
+  <span>greyscale · structure only</span>
+</div>
+
+<div class="frame" id="frame">
+
+<!-- ══ SCREEN: TRIAGE (list-detail) ══════════════════════ -->
+<section class="screen" id="s-triage">
+  <div class="app">
+    <nav class="nav">
+      <a href="#" class="current">Queue</a>
+      <a href="#">Decided</a>
+      <a href="#">Reports</a>
+    </nav>
+    <div>
+      <div class="bar">
+        <strong>Applications</strong>
+        <span class="chip">unreviewed ×</span>
+        <span class="spacer"></span>
+        <span class="meta"><b>142</b> left</span>
+      </div>
+
+      <div data-state="loaded">
+        <div class="split">
+          <div class="pane" id="queue"></div>
+          <div class="pane">
+            <div style="padding:18px">
+              <h2>Marguerite Oyelaran-Whitfield</h2>
+              <p class="meta">#4821 · applied 2 days ago · Bristol · referred by S. Patel</p>
+              <p>Eight years in field operations, currently coordinating a team of eleven.
+                 Applying for the regional lead position. Available from March.</p>
+              <div class="img" style="height:110px;margin:14px 0">attachment · CV.pdf</div>
+              <div style="display:flex;gap:8px;margin-top:18px">
+                <button class="btn primary">Advance <kbd>a</kbd></button>
+                <button class="btn">Hold <kbd>h</kbd></button>
+                <button class="btn">Reject <kbd>r</kbd></button>
+                <span class="spacer"></span>
+                <button class="btn text">Skip <kbd>s</kbd></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-state="empty" hidden>
+        <div class="empty"><h3>Queue clear</h3>
+          <p>All 142 applications reviewed. Nothing waiting on you.</p>
+          <button class="btn">View decided</button></div>
+      </div>
+
+      <div data-state="first-run" hidden>
+        <div class="empty"><h3>No applications yet</h3>
+          <p>They'll appear here as they arrive. Decisions take one keystroke.</p>
+          <button class="btn primary">Import existing</button></div>
+      </div>
+
+      <div data-state="loading" hidden>
+        <div style="padding:14px">
+          <div class="skel" style="width:40%;margin-bottom:14px"></div>
+          <div class="skel" style="width:90%;margin-bottom:8px"></div>
+          <div class="skel" style="width:85%;margin-bottom:8px"></div>
+          <div class="skel" style="width:70%"></div>
+        </div>
+      </div>
+
+      <div data-state="error" hidden>
+        <div class="error"><strong>Couldn't load the queue.</strong>
+          <div style="margin-top:6px">The applications service didn't respond. Your last
+            decision was saved.</div>
+          <button class="btn" style="margin-top:10px">Retry</button></div>
+      </div>
+
+      <div data-state="overloaded" hidden>
+        <div class="bar"><span class="meta">3,481 items — showing the oldest 200.
+          Narrow by date or status to see the rest.</span></div>
+        <div class="pane" id="queueBig"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCREEN: DASHBOARD ═════════════════════════════════ -->
+<section class="screen" id="s-dash" hidden>
+  <div class="bar"><strong>This week</strong><span class="spacer"></span>
+    <span class="meta">updated 30s ago</span></div>
+  <div class="dash">
+    <div class="tile hero"><div class="meta">Awaiting review</div>
+      <div class="n">142</div>
+      <div class="meta">↑ 38 vs last week · target under 50</div></div>
+    <div class="tile"><div class="meta">Median wait</div><div class="n">3.4d</div>
+      <div class="meta">↑ 0.9d vs last week</div></div>
+    <div class="tile"><div class="meta">Decided</div><div class="n">318</div>
+      <div class="meta">↓ 12 vs last week</div></div>
+    <div class="tile"><div class="meta">Volume</div><div class="chart">
+      <i style="height:40%"></i><i style="height:65%"></i><i style="height:55%"></i>
+      <i style="height:80%"></i><i style="height:72%"></i><i style="height:95%"></i></div>
+      <div class="meta">Mon–Sat</div></div>
+    <div class="tile hero"><strong>Needs attention (3)</strong>
+      <div class="row"><span class="meta">18d</span><span class="t">#4102 · no owner assigned</span><span class="meta">→</span></div>
+      <div class="row"><span class="meta">14d</span><span class="t">#4188 · awaiting references</span><span class="meta">→</span></div>
+      <div class="row"><span class="meta">11d</span><span class="t">#4203 · flagged by two reviewers</span><span class="meta">→</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCREEN: CAPTURE FORM ══════════════════════════════ -->
+<section class="screen" id="s-form" hidden>
+  <div class="form">
+    <h2 style="margin-bottom:18px">Log a decision</h2>
+    <div class="field"><label>Application</label>
+      <select><option>#4821 — M. Oyelaran-Whitfield</option></select>
+      <div class="hint">Prefilled from the queue</div></div>
+    <div class="field"><label>Outcome</label>
+      <select><option>Advance to interview</option><option>Hold</option><option>Reject</option></select></div>
+    <div class="field"><label>Reason</label>
+      <input value="Strong ops background, team size matches"></div>
+    <button class="btn primary" style="width:100%">Save decision</button>
+    <p class="hint" style="text-align:center;margin-top:10px">Saved 4 min ago — Advance · <a href="#">edit</a></p>
+  </div>
+</section>
+
+</div>
+
+<!-- ══ ANNOTATIONS ═══════════════════════════════════════ -->
+<div class="anno">
+  <h4>notes</h4>
+  <ol style="margin:0;padding-left:20px">
+    <li><span class="mark">1</span> Queue sorted oldest-first, stable during a session — rows never reorder under the cursor.</li>
+    <li><span class="mark">2</span> <kbd>j</kbd>/<kbd>k</kbd> move selection, <kbd>a</kbd>/<kbd>h</kbd>/<kbd>r</kbd> decide and auto-advance. Try it.</li>
+    <li><span class="mark">3</span> No confirmation on decide — 5s undo toast instead. 142 items/day makes a confirm dialog untenable.</li>
+    <li><span class="mark">4</span> Production is ~3,500 items; list is virtualized, 200 rendered (see "overloaded" state).</li>
+    <li><span class="mark">5</span> Dashboard is secondary — reached from the nav, never the landing screen.</li>
+  </ol>
+</div>
+
+<script>
+// ── review controls ───────────────────────────────────────
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+$('#screenSel').onchange = e => {
+  $$('.screen').forEach(s => s.hidden = s.id !== e.target.value);
+};
+$('#stateSel').onchange = e => {
+  $$('[data-state]').forEach(n => n.hidden = n.dataset.state !== e.target.value);
+};
+$('#mobileTog').onchange = e => $('#frame').classList.toggle('mobile', e.target.checked);
+
+// ── realistic placeholder data: long, empty, and extreme values on purpose ──
+const NAMES = ['Marguerite Oyelaran-Whitfield','J. Smith','Dev Raghunathan','—',
+  'Aoife Ní Bhraonáin','Chen Wei','Bartholomew Fitzwilliam-Cholmondeley III','K. Okonkwo',
+  'Ana Sofía Restrepo Villalobos','T. Park','Yusuf Al-Rashid','Fionnuala MacCarthaigh'];
+const AGES = ['2d','2d','5d','5d','8d','11d','14d','18d','21d','34d','61d','180d'];
+
+function fill(el, n){
+  el.innerHTML = Array.from({length:n}, (_,i) => {
+    const nm = NAMES[i % NAMES.length];
+    return `<div class="row${i===0?' sel':''}" tabindex="0">
+      <span class="meta">#${4821-i}</span>
+      <span class="t">${nm}</span>
+      <span class="meta">${AGES[i % AGES.length]}</span></div>`;
+  }).join('');
+}
+fill($('#queue'), 34);
+fill($('#queueBig'), 60);
+
+// ── keyboard loop: the design can't be judged with a mouse ──
+let idx = 0;
+const rows = () => $$('#queue .row');
+function select(i){
+  const r = rows(); if(!r.length) return;
+  idx = Math.max(0, Math.min(i, r.length-1));
+  r.forEach((n,j) => n.classList.toggle('sel', j===idx));
+  r[idx].scrollIntoView({block:'nearest'});
+}
+document.addEventListener('keydown', e => {
+  if(/input|select|textarea/i.test(e.target.tagName)) return;
+  if(e.key==='j'||e.key==='ArrowDown'){ select(idx+1); e.preventDefault(); }
+  if(e.key==='k'||e.key==='ArrowUp'){ select(idx-1); e.preventDefault(); }
+  if('ahr'.includes(e.key)){                   // decide → remove → auto-advance
+    const r = rows()[idx]; if(!r) return;
+    r.remove(); select(idx);
+    const left = $('.bar .meta b'); if(left) left.textContent = rows().length;
+  }
+});
+$('#queue').addEventListener('click', e => {
+  const r = e.target.closest('.row'); if(r) select(rows().indexOf(r));
+});
+</script>
+</body>
+</html>

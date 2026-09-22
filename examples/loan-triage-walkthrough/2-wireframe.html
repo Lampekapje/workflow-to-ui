@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wireframe — Mortgage Underwriting Triage (FlowyourI Example)</title>
+<style>
+  :root {
+    --w-0: #ffffff; --w-1: #f7f7f7; --w-2: #ededed; --w-3: #dcdcdc;
+    --w-4: #b4b4b4; --w-5: #8c8c8c; --w-6: #5c5c5c; --w-7: #2e2e2e; --w-8: #121212;
+    --danger: #9b6b6b;
+    --radius: 3px;
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    box-sizing: border-box;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  body { margin: 0; background: var(--w-1); color: var(--w-6); font: 14px/1.45 var(--font); }
+  h1, h2, h3 { color: var(--w-7); margin: 0; font-weight: 600; }
+
+  /* ─── Review Chrome (Deliberately not part of product) ─── */
+  .review-bar {
+    position: sticky; top: 0; z-index: 100; display: flex; gap: 16px; align-items: center;
+    flex-wrap: wrap; padding: 8px 14px; background: var(--w-2); border-bottom: 2px dashed var(--w-4);
+    font: 12px/1 var(--mono); color: var(--w-5);
+  }
+  .review-bar select, .review-bar label { font: 12px/1 var(--mono); }
+  .review-bar select { padding: 4px 8px; border: 1px solid var(--w-4); background: var(--w-0); border-radius: 2px; }
+  .review-bar .pill { background: var(--w-3); color: var(--w-7); padding: 2px 6px; border-radius: 2px; }
+
+  /* ─── Layout Frame ─── */
+  .frame { max-width: 1200px; margin: 20px auto; background: var(--w-0); border: 1px solid var(--w-3); border-radius: var(--radius); overflow: hidden; min-height: 640px; }
+  .split { display: grid; grid-template-columns: 340px 1fr; min-height: 600px; }
+  .pane { overflow-y: auto; max-height: calc(100vh - 120px); }
+  .pane + .pane { border-left: 1px solid var(--w-3); }
+
+  /* ─── Queue Rail ─── */
+  .queue-header { padding: 12px 14px; border-bottom: 1px solid var(--w-3); background: var(--w-1); display: flex; justify-content: space-between; align-items: center; }
+  .queue-list { list-style: none; margin: 0; padding: 0; }
+  .queue-item {
+    display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px 14px;
+    border-bottom: 1px solid var(--w-2); cursor: pointer; user-select: none;
+  }
+  .queue-item:nth-child(even) { background: var(--w-1); }
+  .queue-item.selected { background: var(--w-2); box-shadow: inset 3px 0 0 var(--w-8); }
+  .queue-item .title { color: var(--w-8); font-weight: 600; font-size: 13px; }
+  .queue-item .sub { font-size: 12px; color: var(--w-5); margin-top: 2px; }
+  .queue-item .badge { font: 11px/1 var(--mono); padding: 2px 6px; border: 1px solid var(--w-4); border-radius: 2px; align-self: start; }
+  .queue-item .badge.flag { border-color: var(--danger); color: var(--danger); }
+
+  /* ─── Detail / Evidence Pane ─── */
+  .detail { display: flex; flex-direction: column; height: 100%; }
+  .detail-header { padding: 16px 20px; border-bottom: 1px solid var(--w-3); display: flex; justify-content: space-between; align-items: center; background: var(--w-0); }
+  .detail-body { padding: 20px; flex: 1; overflow-y: auto; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-box { border: 1px solid var(--w-3); border-radius: var(--radius); padding: 12px; }
+  .stat-box .label { font-size: 11px; text-transform: uppercase; color: var(--w-5); font-family: var(--mono); }
+  .stat-box .val { font-size: 22px; font-weight: 700; color: var(--w-8); margin-top: 4px; }
+  .section-box { border: 1px solid var(--w-3); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; background: var(--w-0); }
+  .section-box h3 { font-size: 14px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ─── Action Bar ─── */
+  .action-bar {
+    position: sticky; bottom: 0; padding: 12px 20px; background: var(--w-1);
+    border-top: 1px solid var(--w-3); display: flex; align-items: center; gap: 12px;
+  }
+  .btn {
+    border: 1px solid var(--w-4); background: var(--w-0); color: var(--w-7);
+    padding: 8px 16px; border-radius: var(--radius); font: inherit; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; font-weight: 500;
+  }
+  .btn.primary { background: var(--w-8); border-color: var(--w-8); color: var(--w-0); }
+  .btn.danger { color: var(--danger); border-color: var(--danger); }
+  kbd {
+    font: 11px var(--mono); border: 1px solid var(--w-4); border-bottom-width: 2px;
+    border-radius: 3px; padding: 1px 5px; color: var(--w-7); background: var(--w-2);
+  }
+  .btn.primary kbd { border-color: var(--w-6); background: var(--w-7); color: var(--w-0); }
+
+  /* ─── State Switcher Panels ─── */
+  .state-view { display: none; }
+  .state-view.active { display: block; }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--w-5); }
+  .empty-state h3 { font-size: 18px; color: var(--w-7); margin-bottom: 8px; }
+  .error-bar { background: #fff2f2; border: 1px solid var(--danger); color: var(--danger); padding: 12px 16px; margin: 16px; border-radius: var(--radius); }
+  .skel { background: var(--w-2); border-radius: 2px; height: 14px; margin-bottom: 8px; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+
+  /* ─── Non-blocking Undo Toast ─── */
+  .undo-toast {
+    position: fixed; bottom: 24px; left: 24px; background: var(--w-8); color: var(--w-0);
+    padding: 12px 18px; border-radius: var(--radius); font-size: 13px; display: none;
+    align-items: center; gap: 14px; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .undo-toast.visible { display: flex; }
+  .undo-toast button { background: none; border: 1px solid var(--w-5); color: var(--w-0); padding: 3px 8px; border-radius: 2px; cursor: pointer; font: inherit; }
+
+  /* ─── Annotations ─── */
+  .anno { max-width: 1200px; margin: 20px auto 60px; padding: 16px 20px; border-left: 3px solid var(--w-4); background: var(--w-0); font-size: 13px; }
+  .anno h4 { margin: 0 0 8px; font-size: 14px; color: var(--w-8); }
+</style>
+</head>
+<body>
+
+<!-- ─── Review Chrome ─── -->
+<div class="review-bar">
+  <span><strong>FLOWYOURI REVIEW MODE</strong></span>
+  <span>Archetype: <span class="pill">Triage</span></span>
+  <span>Target Budget: <span class="pill">1 Key / Item</span></span>
+  <label for="stateSel">State:</label>
+  <select id="stateSel" onchange="switchState(this.value)">
+    <option value="loaded">Loaded (30 records, live hotkeys)</option>
+    <option value="empty">Empty (Cleared Queue)</option>
+    <option value="loading">Loading (Skeleton Match)</option>
+    <option value="error">Error (API Outage)</option>
+  </select>
+  <span>Hotkeys: <kbd>j</kbd>/<kbd>k</kbd> Nav &middot; <kbd>a</kbd> Advance &middot; <kbd>r</kbd> Reject &middot; <kbd>h</kbd> Hold &middot; <kbd>u</kbd> Undo</span>
+</div>
+
+<!-- ─── Loaded State View ─── -->
+<div id="view-loaded" class="state-view active">
+  <div class="frame">
+    <div class="split">
+      <!-- Queue Left Pane -->
+      <div class="pane">
+        <div class="queue-header">
+          <div><strong>Active Queue</strong> <span style="color:var(--w-5); font-size:12px;" id="queueCount">(24 pending)</span></div>
+          <span style="font-size:12px; font-family:var(--mono); color:var(--w-5);">SLA: &lt; 2h</span>
+        </div>
+        <ul class="queue-list" id="queueList"></ul>
+      </div>
+
+      <!-- Evidence / Decision Right Pane -->
+      <div class="pane detail">
+        <div class="detail-header">
+          <div>
+            <h2 id="leadName">Marcus Vance</h2>
+            <div style="font-size:12px; color:var(--w-5); margin-top:2px;" id="leadId">File #LN-8942 &middot; Conventional 30Y Fixed</div>
+          </div>
+          <div id="riskStatus"><span class="badge flag">HIGH RISK DTI</span></div>
+        </div>
+
+        <div class="detail-body">
+          <div class="stats-grid">
+            <div class="stat-box"><div class="label">Credit Score</div><div class="val" id="leadCredit">742</div></div>
+            <div class="stat-box"><div class="label">Debt-to-Income</div><div class="val" id="leadDTI">44.8%</div></div>
+            <div class="stat-box"><div class="label">Loan Amount</div><div class="val" id="leadAmount">$420,000</div></div>
+            <div class="stat-box"><div class="label">LTV Ratio</div><div class="val" id="leadLTV">78.0%</div></div>
+          </div>
+
+          <div class="section-box">
+            <h3>Automated Verification Flags</h3>
+            <ul style="margin:0; padding-left:20px; font-size:13px; color:var(--w-7);" id="flagList">
+              <li>Debt-to-income exceeds standard 43.0% threshold (Current: 44.8%).</li>
+              <li>Unexplained $14,500 recurring deposit on June statements.</li>
+              <li>Employment verified: 4.2 years at Apex Logistics.</li>
+            </ul>
+          </div>
+
+          <div class="section-box">
+            <h3>Underwriting Documents & Evidence</h3>
+            <div style="display:flex; gap:12px; font-size:12px; font-family:var(--mono);">
+              <span class="badge">[PDF] 2025_W2_Verified.pdf</span>
+              <span class="badge">[PDF] Bank_Statements_90D.pdf</span>
+              <span class="badge">[PDF] Title_Search_Clear.pdf</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Hotkey Action Bar -->
+        <div class="action-bar">
+          <button class="btn primary" onclick="decide('advance')"><kbd>a</kbd> Advance to Closing</button>
+          <button class="btn danger" onclick="decide('reject')"><kbd>r</kbd> Reject</button>
+          <button class="btn" onclick="decide('hold')"><kbd>h</kbd> Place on Hold</button>
+          <span style="flex:1;"></span>
+          <span style="font-size:12px; color:var(--w-5);">Auto-advances queue instantly</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Empty State View ─── -->
+<div id="view-empty" class="state-view">
+  <div class="frame">
+    <div class="empty-state">
+      <h3>Queue cleared. No loans pending review.</h3>
+      <p style="max-width:400px; margin:10px auto;">You have processed 142 applications today. The next automated intake batch runs at 14:00 EST.</p>
+      <button class="btn" onclick="switchState('loaded')">Reload Sample Queue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Loading Skeleton View ─── -->
+<div id="view-loading" class="state-view">
+  <div class="frame">
+    <div class="split">
+      <div class="pane" style="padding:14px;">
+        <div class="skel" style="width:50%; height:18px; margin-bottom:14px;"></div>
+        <div class="skel" style="height:44px;"></div>
+        <div class="skel" style="height:44px;"></div>
+        <div class="skel" style="height:44px;"></div>
+        <div class="skel" style="height:44px;"></div>
+      </div>
+      <div class="pane" style="padding:20px;">
+        <div class="skel" style="width:40%; height:28px; margin-bottom:20px;"></div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
+          <div class="skel" style="height:70px;"></div>
+          <div class="skel" style="height:70px;"></div>
+          <div class="skel" style="height:70px;"></div>
+          <div class="skel" style="height:70px;"></div>
+        </div>
+        <div class="skel" style="height:120px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Error View ─── -->
+<div id="view-error" class="state-view">
+  <div class="frame">
+    <div class="error-bar">
+      <strong>Risk Engine Sync Failure:</strong> Unable to load new queue records. Existing local work was preserved.
+      <button class="btn" style="margin-left:12px; padding:4px 10px;" onclick="switchState('loaded')">Retry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Non-Blocking Undo Toast ─── -->
+<div class="undo-toast" id="undoToast">
+  <span id="undoMsg">Decided Loan #LN-8942</span>
+  <button onclick="undoLast()"><kbd>u</kbd> Undo</button>
+</div>
+
+<!-- ─── Margin Annotations ─── -->
+<div class="anno">
+  <h4>Structural Verification Notes (FlowyourI Triage Model)</h4>
+  <ol style="margin:0; padding-left:20px; color:var(--w-6); line-height:1.6;">
+    <li><strong>Budget Compliance:</strong> 1 single keystroke per loan (<kbd>a</kbd>, <kbd>r</kbd>, or <kbd>h</kbd>). No confirmation modals — mistakes are caught via the non-blocking 5s undo toast.</li>
+    <li><strong>Zero Mouse Trip:</strong> Focus never leaves the queue; advancing auto-focuses the next loan without jumping scroll position.</li>
+    <li><strong>Real Density:</strong> Compact queue shows 20+ applications at once, with high-signal risk tags visible before clicking.</li>
+  </ol>
+</div>
+
+<script>
+  // Realistic loan dataset
+  let loans = [
+    { id: "LN-8942", name: "Marcus Vance", amount: "$420,000", credit: 742, dti: "44.8%", ltv: "78%", flag: "HIGH DTI", flags: ["DTI exceeds 43% standard", "Unexplained $14k deposit"] },
+    { id: "LN-8943", name: "Elena Rostova", amount: "$310,000", credit: 810, dti: "24.1%", ltv: "65%", flag: "CLEAN", flags: ["All automated verifications passed", "Reserve assets: 14 months"] },
+    { id: "LN-8944", name: "David Chen", amount: "$650,000", credit: 695, dti: "36.5%", ltv: "82%", flag: "REVIEW", flags: ["First-time homebuyer program", "Self-employed 2y tax returns attached"] },
+    { id: "LN-8945", name: "Sarah Jenkins", amount: "$285,000", credit: 780, dti: "19.8%", ltv: "55%", flag: "CLEAN", flags: ["Prequalified preferred borrower"] },
+    { id: "LN-8946", name: "Robert Thorne", amount: "$510,000", credit: 638, dti: "48.2%", ltv: "88%", flag: "CREDIT WATCH", flags: ["Credit score below 640 floor", "Prior late payment 8 months ago"] },
+    { id: "LN-8947", name: "Amanda Lee", amount: "$390,000", credit: 765, dti: "31.2%", ltv: "75%", flag: "CLEAN", flags: ["All conditions satisfied"] },
+    { id: "LN-8948", name: "Carlos Mendez", amount: "$440,000", credit: 722, dti: "38.0%", ltv: "80%", flag: "CLEAN", flags: ["Gift funds letter attached and verified"] }
+  ];
+
+  let currentIndex = 0;
+  let historyStack = [];
+  let undoTimeout = null;
+
+  function renderQueue() {
+    const list = document.getElementById('queueList');
+    list.innerHTML = '';
+    document.getElementById('queueCount').innerText = `(${loans.length} pending)`;
+
+    loans.forEach((item, idx) => {
+      const li = document.createElement('li');
+      li.className = 'queue-item' + (idx === currentIndex ? ' selected' : '');
+      li.onclick = () => selectItem(idx);
+      li.innerHTML = `
+        <div>
+          <div class="title">${item.name}</div>
+          <div class="sub">${item.id} &middot; ${item.amount}</div>
+        </div>
+        <span class="badge ${item.flag !== 'CLEAN' ? 'flag' : ''}">${item.flag}</span>
+      `;
+      list.appendChild(li);
+    });
+
+    if (loans.length > 0) {
+      renderDetail(loans[currentIndex]);
+    } else {
+      switchState('empty');
+    }
+  }
+
+  function renderDetail(item) {
+    if (!item) return;
+    document.getElementById('leadName').innerText = item.name;
+    document.getElementById('leadId').innerText = `File #${item.id} · Conventional 30Y Fixed`;
+    document.getElementById('leadCredit').innerText = item.credit;
+    document.getElementById('leadDTI').innerText = item.dti;
+    document.getElementById('leadAmount').innerText = item.amount;
+    document.getElementById('leadLTV').innerText = item.ltv;
+
+    const flagContainer = document.getElementById('riskStatus');
+    flagContainer.innerHTML = `<span class="badge ${item.flag !== 'CLEAN' ? 'flag' : ''}">${item.flag}</span>`;
+
+    const flagsUl = document.getElementById('flagList');
+    flagsUl.innerHTML = item.flags.map(f => `<li>${f}</li>`).join('');
+  }
+
+  function selectItem(idx) {
+    if (idx >= 0 && idx < loans.length) {
+      currentIndex = idx;
+      renderQueue();
+    }
+  }
+
+  function decide(action) {
+    if (loans.length === 0) return;
+    const removed = loans.splice(currentIndex, 1)[0];
+    historyStack.push({ item: removed, index: currentIndex, action: action });
+
+    if (currentIndex >= loans.length) {
+      currentIndex = Math.max(0, loans.length - 1);
+    }
+    renderQueue();
+    showUndoToast(removed, action);
+  }
+
+  function showUndoToast(item, action) {
+    const toast = document.getElementById('undoToast');
+    const msg = document.getElementById('undoMsg');
+    msg.innerText = `${action.toUpperCase()}: ${item.name} (${item.id})`;
+    toast.classList.add('visible');
+
+    if (undoTimeout) clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(() => {
+      toast.classList.remove('visible');
+    }, 5000);
+  }
+
+  function undoLast() {
+    if (historyStack.length === 0) return;
+    const last = historyStack.pop();
+    loans.splice(last.index, 0, last.item);
+    currentIndex = last.index;
+    renderQueue();
+    document.getElementById('undoToast').classList.remove('visible');
+  }
+
+  function switchState(state) {
+    document.querySelectorAll('.state-view').forEach(el => el.classList.remove('active'));
+    document.getElementById(`view-${state}`).classList.add('active');
+  }
+
+  // Keyboard navigation contract
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+    if (e.key === 'j' || e.key === 'ArrowDown') {
+      selectItem(currentIndex + 1);
+    } else if (e.key === 'k' || e.key === 'ArrowUp') {
+      selectItem(currentIndex - 1);
+    } else if (e.key === 'a') {
+      decide('advance');
+    } else if (e.key === 'r') {
+      decide('reject');
+    } else if (e.key === 'h') {
+      decide('hold');
+    } else if (e.key === 'u' || (e.key === 'z' && (e.metaKey || e.ctrlKey))) {
+      undoLast();
+    }
+  });
+
+  // Initial render
+  renderQueue();
+</script>
+
+</body>
+</html>
